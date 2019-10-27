@@ -4,19 +4,21 @@ using UnityEngine;
 
 public class MeleeUnit : Unit
 {
-    //Fields the class needs access to
-    //isDead field used for Death method
-    public bool IsDead { get; set; }
-
-    public int XPos
+    public string Name
     {
-        get { return base.xPos; }
-        set { base.xPos = value; }
+        get { return base.name; }
     }
-    public int YPos
+
+    public int PosX
     {
-        get { return base.yPos; }
-        set { base.yPos = value; }
+        get { return base.posX; }
+        set { base.posX = value; }
+    }
+
+    public int PosY
+    {
+        get { return base.posY; }
+        set { posY = value; }
     }
 
     public int Health
@@ -30,26 +32,29 @@ public class MeleeUnit : Unit
         get { return base.maxHealth; }
     }
 
+    public int Speed
+    {
+        get { return base.speed; }
+    }
+
     public int Attack
     {
         get { return base.attack; }
-        set { base.attack = value; }
     }
 
     public int AttackRange
     {
         get { return base.attackRange; }
-        set { base.attackRange = value; }
-    }
-    public int Speed
-    {
-        get { return base.speed; }
-        set { base.speed = value; }
     }
 
-    public int Faction
+    public string Symbol
     {
-        get { return base.faction; }
+        get { return base.symbol; }
+    }
+
+    public int FactionType
+    {
+        get { return base.factionType; }
     }
 
     public bool IsAttacking
@@ -58,222 +63,445 @@ public class MeleeUnit : Unit
         set { base.isAttacking = value; }
     }
 
-    public string Name
+    private int mapHeight;
+
+    public int MapHeight
     {
-        get { return base.name; }
-        set { base.name = value; }
+        get { return mapHeight; }
+        set { mapHeight = value; }
     }
 
-    //Constructor for the MeleeUnit Class
-    public MeleeUnit(int x, int y, int h, int s, int a, int f)
+    private int mapWidth;
+
+    public int MapWidth
     {
-        XPos = x;
-        YPos = y;
-        Health = h;
-        base.maxHealth = h;
-        Speed = s;
-        Attack = a;
-        AttackRange = 2; //Uses Taxicab distance
-        base.faction = f;
-        Name = "Barbarian";
-        IsAttacking = false;
+        get { return mapWidth; }
+        set { mapWidth = value; }
+    }
+
+    private int speedCounter = 1;
+    List<Unit> units = new List<Unit>();
+    List<Building> buildings = new List<Building>();
+    Unit closestUnit;
+    Building closestBuilding;
+
+    //Constructor that sends all parameters to the unit constructor
+    public MeleeUnit(string n, int x, int y, int faction, int hp, int sp, int att, int attRange, bool isAtt)
+        : base(n, x, y, hp, sp, att, attRange, faction, isAtt)
+    {
 
     }
 
-    //OVERRIDE METHODS
-    //Handles a unit's death
-    public override bool Death()
+    //Changes the x and y position towards the closest enemy or to run away
+    public override void Move(int type)
     {
-        if(health <= 0)
+        //Moves towards closest enemey
+        if (Health > MaxHealth * 0.25)
         {
-            return true;
+            if (type == 0)
+            {
+                if (closestUnit is MeleeUnit)
+                {
+                    MeleeUnit closestUnitM = (MeleeUnit)closestUnit;
+
+                    if (closestUnitM.PosX > posX && PosX < MapWidth - 1)
+                    {
+                        posX++;
+                    }
+                    else if (closestUnitM.PosX < posX && posX > 0)
+                    {
+                        posX--;
+                    }
+
+                    if (closestUnitM.PosY > posY && PosY < MapHeight - 1)
+                    {
+                        posY++;
+                    }
+                    else if (closestUnitM.PosY < posY && posY > 0)
+                    {
+                        posY--;
+                    }
+                }
+                else if (closestUnit is RangedUnit)
+                {
+                    RangedUnit closestUnitR = (RangedUnit)closestUnit;
+
+                    if (closestUnitR.PosX > posX && PosX < MapWidth - 1)
+                    {
+                        posX++;
+                    }
+                    else if (closestUnitR.PosX < posX && posX > 0)
+                    {
+                        posX--;
+                    }
+
+                    if (closestUnitR.PosY > posY && PosY < MapHeight - 1)
+                    {
+                        posY++;
+                    }
+                    else if (closestUnitR.PosY < posY && posY > 0)
+                    {
+                        posY--;
+                    }
+                }
+                else if (closestUnit is WizardUnit)
+                {
+                    WizardUnit closestUnitW = (WizardUnit)closestUnit;
+
+                    if (closestUnitW.PosX > posX && PosX < MapWidth - 1)
+                    {
+                        posX++;
+                    }
+                    else if (closestUnitW.PosX < posX && posX > 0)
+                    {
+                        posX--;
+                    }
+
+                    if (closestUnitW.PosY > posY && PosY < MapHeight - 1)
+                    {
+                        posY++;
+                    }
+                    else if (closestUnitW.PosY < posY && posY > 0)
+                    {
+                        posY--;
+                    }
+                }
+            }
+            else
+            {
+                if (closestBuilding is FactoryBuilding)
+                {
+                    FactoryBuilding closestBuildingFB = (FactoryBuilding)closestBuilding;
+
+                    if (closestBuildingFB.PosX > posX && PosX < MapHeight - 1)
+                    {
+                        posX++;
+                    }
+                    else if (closestBuildingFB.PosX < posX && posX > 0)
+                    {
+                        posX--;
+                    }
+
+                    if (closestBuildingFB.PosY > posY && PosY < MapWidth - 1)
+                    {
+                        posY++;
+                    }
+                    else if (closestBuildingFB.PosY < posY && posY > 0)
+                    {
+                        posY--;
+                    }
+                }
+                else if (closestBuilding is ResourceBuilding)
+                {
+                    ResourceBuilding closestBuildingRB = (ResourceBuilding)closestBuilding;
+
+                    if (closestBuildingRB.PosX > posX && PosX < MapHeight - 1)
+                    {
+                        posX++;
+                    }
+                    else if (closestBuildingRB.PosX < posX && posX > 0)
+                    {
+                        posX--;
+                    }
+
+                    if (closestBuildingRB.PosY > posY && PosY < MapWidth - 1)
+                    {
+                        posY++;
+                    }
+                    else if (closestBuildingRB.PosY < posY && posY > 0)
+                    {
+                        posY--;
+                    }
+                }
+            }
+        }
+        else //Moves in random direction to run away
+        {
+            int direction = Random.Range(0, 4);
+
+            if (direction == 0 && PosX < MapHeight - 1)
+            {
+                posX++;
+            }
+            else if (direction == 1 && posX > 0)
+            {
+                posX--;
+            }
+            else if (direction == 2 && posY < MapWidth - 1)
+            {
+                posY++;
+            }
+            else if (direction == 3 && posY > 0)
+            {
+                posY--;
+            }
+        }
+    }
+
+    //Deals damage to closest unit if they are in attack range
+    public override void Combat(int type)
+    {
+        if (type == 0)
+        {
+            if (closestUnit is MeleeUnit)
+            {
+                MeleeUnit M = (MeleeUnit)closestUnit;
+                M.Health -= Attack;
+            }
+            else if (closestUnit is RangedUnit)
+            {
+                RangedUnit R = (RangedUnit)closestUnit;
+                R.Health -= Attack;
+            }
+            else if (closestUnit is WizardUnit)
+            {
+                WizardUnit W = (WizardUnit)closestUnit;
+                W.Health -= Attack;
+            }
+        }
+        else if (type == 1)
+        {
+            if (closestBuilding is FactoryBuilding)
+            {
+                FactoryBuilding FB = (FactoryBuilding)closestBuilding;
+                FB.Health -= Attack;
+            }
+            else if (closestBuilding is ResourceBuilding)
+            {
+                ResourceBuilding RB = (ResourceBuilding)closestBuilding;
+                RB.Health -= Attack;
+            }
+        }
+    }
+
+    //Checks to see if the closest enemy is in attack range and if they are calls combat or move if they aren't
+    public override void CheckAttackRange(List<Unit> uni, List<Building> build)
+    {
+        units = uni;
+        buildings = build;
+
+        closestUnit = ClosestEnemy();
+        closestBuilding = ClosestEnemyBuilding();
+
+        int enemyType;
+
+        int xDis = 0, yDis = 0;
+
+        int uDistance = 10000, bDistance = 10000;
+        int distance;
+
+        if (closestUnit is MeleeUnit)
+        {
+            MeleeUnit M = (MeleeUnit)closestUnit;
+            xDis = Mathf.Abs((PosX - M.PosX) * (PosX - M.PosX));
+            yDis = Mathf.Abs((PosY - M.PosY) * (PosY - M.PosY));
+
+            uDistance = (int)Mathf.Round(Mathf.Sqrt(xDis + yDis));
+        }
+        else if (closestUnit is RangedUnit)
+        {
+            RangedUnit R = (RangedUnit)closestUnit;
+            xDis = Mathf.Abs((PosX - R.PosX) * (PosX - R.PosX));
+            yDis = Mathf.Abs((PosY - R.PosY) * (PosY - R.PosY));
+
+            uDistance = (int)Mathf.Round(Mathf.Sqrt(xDis + yDis));
+        }
+        else if (closestUnit is WizardUnit)
+        {
+            WizardUnit W = (WizardUnit)closestUnit;
+            xDis = Mathf.Abs((PosX - W.PosX) * (PosX - W.PosX));
+            yDis = Mathf.Abs((PosY - W.PosY) * (PosY - W.PosY));
+
+            uDistance = (int)Mathf.Round(Mathf.Sqrt(xDis + yDis));
+        }
+
+        if (closestBuilding is FactoryBuilding)
+        {
+            FactoryBuilding FB = (FactoryBuilding)closestBuilding;
+            xDis = Mathf.Abs((PosX - FB.PosX) * (PosX - FB.PosX));
+            yDis = Mathf.Abs((PosY - FB.PosY) * (PosY - FB.PosY));
+
+            bDistance = (int)Mathf.Round(Mathf.Sqrt(xDis + yDis));
+        }
+        else if (closestBuilding is ResourceBuilding)
+        {
+            ResourceBuilding RB = (ResourceBuilding)closestBuilding;
+            xDis = Mathf.Abs((PosX - RB.PosX) * (PosX - RB.PosX));
+            yDis = Mathf.Abs((PosY - RB.PosY) * (PosY - RB.PosY));
+
+            bDistance = (int)Mathf.Round(Mathf.Sqrt(xDis + yDis));
+        }
+
+        if (units[0] != null)
+        {
+            if (uDistance < bDistance)
+            {
+                distance = uDistance;
+                enemyType = 0;
+            }
+            else
+            {
+                distance = bDistance;
+                enemyType = 1;
+            }
         }
         else
         {
-            return false;
-        }  
-    }
-
-    //Handles movement
-    public override void Move(int dir)
-    {
-        if (dir == 0 && YPos > 0)
-        {
-            YPos--;
-        }
-        else if (dir == 1 && XPos < 9)
-        {
-            XPos++;
-        }
-        else if (dir == 2 && YPos < 9)
-        {
-            YPos++;
-        }
-        else if (dir == 3 && XPos > 0)
-        {
-            XPos--;
-        }
-    }
-
-    //Handles combat
-    public override void Combat(Unit attacker)
-    {
-        if (attacker is MeleeUnit)
-        {
-            Health = Health - ((MeleeUnit)attacker).Attack;
-        }
-        else if (attacker is RangedUnit)
-        {
-            RangedUnit ru = (RangedUnit)attacker;
-            Health = Health - (ru.Attack - ru.AttackRange);
-        }
-        else if (attacker is WizardUnit)
-        {
-            WizardUnit wu = (WizardUnit)attacker;
-            Health = Health - (wu.Attack - wu.AttackRange);
-        }
-        if (Health <= 0)
-        {
-            Death();
-        }
-    }
-
-    //Handles the distance between units
-    public override bool InRange(Unit other, Building otherino)
-    {
-        int distance = 0;
-        int otherX = 0;
-        int otherY = 0;
-
-        if (other is MeleeUnit)
-        {
-            otherX = ((MeleeUnit)other).XPos;
-            otherY = ((MeleeUnit)other).YPos;
-        }
-        else if (other is RangedUnit)
-        {
-            otherX = ((RangedUnit)other).XPos;
-            otherY = ((RangedUnit)other).YPos;
-        }
-        else if (other is WizardUnit)
-        {
-            otherX = ((WizardUnit)other).XPos;
-            otherY = ((WizardUnit)other).YPos;
-        }
-        else if (otherino is FactoryBuilding)
-        {
-            otherX = ((FactoryBuilding)otherino).XPos;
-            otherY = ((FactoryBuilding)otherino).YPos;
-        }
-        else if (otherino is ResourceBuilding)
-        {
-            otherX = ((ResourceBuilding)otherino).XPos;
-            otherY = ((ResourceBuilding)otherino).YPos;
+            distance = bDistance;
+            enemyType = 1;
         }
 
-        distance = Mathf.Abs(XPos - otherX) + Mathf.Abs(YPos - otherY);
-
-        if (distance <= AttackRange)
+        //Checks to see if they are below 25% health so they move rather than attacking
+        if (Health > MaxHealth * 0.25)
         {
-            return true;
+            if (distance <= AttackRange)
+            {
+                IsAttacking = true;
+                Combat(enemyType);
+            }
+            else
+            {
+                IsAttacking = false;
+                Move(enemyType);
+            }
         }
         else
         {
-            return false;
+            Move(enemyType);
         }
+
     }
 
-    //Determines the closest unit
-    public override (Unit, int) Closest(List<Unit> units)
+    //finds and returns the closest enemy
+    public override Unit ClosestEnemy()
     {
-        int shortest = 100;
-        Unit closest = this;
-        //Closest Unit and Distance                    
+        int xDis = 0, yDis = 0;
+        double distance = 1000;
+        double temp = 1000;
+        Unit target = null;
+
+
         foreach (Unit u in units)
         {
-            if (u is MeleeUnit && u != this)
+            if (u is RangedUnit)
             {
-                MeleeUnit otherMu = (MeleeUnit)u;
-                int distance = Mathf.Abs(this.XPos - otherMu.XPos)
-                           + Mathf.Abs(this.YPos - otherMu.YPos);
-                if (distance < shortest)
+                RangedUnit b = (RangedUnit)u;
+
+                if (FactionType != b.FactionType)
                 {
-                    shortest = distance;
-                    closest = otherMu;
+                    xDis = Mathf.Abs((PosX - b.PosX) * (PosX - b.PosX));
+                    yDis = Mathf.Abs((PosY - b.PosY) * (PosY - b.PosY));
+
+                    distance = Mathf.Round(Mathf.Sqrt(xDis + yDis));
                 }
             }
-            else if (u is RangedUnit && u != this)
+            else if (u is MeleeUnit)
             {
-                RangedUnit otherRu = (RangedUnit)u;
-                int distance = Mathf.Abs(this.XPos - otherRu.XPos)
-                           + Mathf.Abs(this.YPos - otherRu.YPos);
-                if (distance < shortest)
+                MeleeUnit b = (MeleeUnit)u;
+
+                if (FactionType != b.FactionType)
                 {
-                    shortest = distance;
-                    closest = otherRu;
+                    xDis = Mathf.Abs((PosX - b.PosX) * (PosX - b.PosX));
+                    yDis = Mathf.Abs((PosY - b.PosY) * (PosY - b.PosY));
+
+                    distance = Mathf.Round(Mathf.Sqrt(xDis + yDis));
                 }
             }
-            else if (u is WizardUnit && u != this)
+            if (u is WizardUnit)
             {
-                WizardUnit otherWu = (WizardUnit)u;
-                int distance = Mathf.Abs(this.XPos - otherWu.XPos)
-                           + Mathf.Abs(this.YPos - otherWu.YPos);
-                if (distance < shortest)
+                WizardUnit b = (WizardUnit)u;
+
+                if (FactionType != b.FactionType)
                 {
-                    shortest = distance;
-                    closest = otherWu;
+                    xDis = Mathf.Abs((PosX - b.PosX) * (PosX - b.PosX));
+                    yDis = Mathf.Abs((PosY - b.PosY) * (PosY - b.PosY));
+
+                    distance = Mathf.Round(Mathf.Sqrt(xDis + yDis));
                 }
             }
 
 
+            if (distance < temp)
+            {
+                temp = distance;
+                target = u;
+            }
         }
-        return (closest, shortest);
+
+        return target;
     }
 
-    //Determines the closest building
-    public (Building, int) BuildingClosest(List<Building> buildings)
+    //finds and returns the closest enemy building
+    public Building ClosestEnemyBuilding()
     {
-        int shortest = 100;
-        Building closest = null;
+        int xDis = 0, yDis = 0;
+        double distance = 1000;
+        double temp = 1000;
+        Building target = null;
 
-        //Closest Unit and Distance                    
+
         foreach (Building u in buildings)
         {
             if (u is FactoryBuilding)
             {
-                FactoryBuilding otherMu = (FactoryBuilding)u;
-                int distance = Mathf.Abs(this.XPos - otherMu.XPos)
-                           + Mathf.Abs(this.YPos - otherMu.YPos);
-                if (distance < shortest)
+                FactoryBuilding b = (FactoryBuilding)u;
+
+                if (FactionType != b.FactionType)
                 {
-                    shortest = distance;
-                    closest = otherMu;
+                    xDis = Mathf.Abs((PosX - b.PosX) * (PosX - b.PosX));
+                    yDis = Mathf.Abs((PosY - b.PosY) * (PosY - b.PosY));
+
+                    distance = Mathf.Round(Mathf.Sqrt(xDis + yDis));
                 }
             }
             else if (u is ResourceBuilding)
             {
-                ResourceBuilding otherRu = (ResourceBuilding)u;
-                int distance = Mathf.Abs(this.XPos - otherRu.XPos)
-                           + Mathf.Abs(this.YPos - otherRu.YPos);
-                if (distance < shortest)
+                ResourceBuilding b = (ResourceBuilding)u;
+
+                if (FactionType != b.FactionType)
                 {
-                    shortest = distance;
-                    closest = otherRu;
+                    xDis = Mathf.Abs((PosX - b.PosX) * (PosX - b.PosX));
+                    yDis = Mathf.Abs((PosY - b.PosY) * (PosY - b.PosY));
+
+                    distance = Mathf.Round(Mathf.Sqrt(xDis + yDis));
                 }
             }
+
+
+            if (distance < temp)
+            {
+                temp = distance;
+                target = u;
+            }
         }
-        return (closest, shortest);
+
+        return target;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    //Checks and returns if the unit is below or at 0 health
+    public override bool Death()
     {
-        
+        if (Health <= 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    //Returns the units information
+    public override string ToString()
     {
-        
+        return Name + "\nX: " + PosX
+            + " Y: " + PosY
+            + "\nMax Health: " + MaxHealth
+            + "\nHealth: " + Health
+            + "\nSpeed: " + Speed
+            + "\nAttack Damage " + Attack
+            + "\nAttack Range: " + AttackRange
+            + "\nFaction: " + FactionType
+            + "\nAttacking: " + IsAttacking;
     }
 }

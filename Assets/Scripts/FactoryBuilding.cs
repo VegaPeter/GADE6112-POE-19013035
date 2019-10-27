@@ -4,33 +4,16 @@ using UnityEngine;
 
 public class FactoryBuilding : Building
 {
-
-    //Declarations of variables
-    protected string unitType;
-    protected int productionSpeed;
-    protected int spawnPoint;
-
-    //Constructor for FactoryBuilding class
-    public FactoryBuilding(int x, int y, int h, int f, bool des, string unT)
+    public int PosX
     {
-        xPos = x;
-        yPos = y;
-        health = h;
-        faction = f;
-        unitType = unT;
+        get { return base.posX; }
+        set { base.posX = value; }
     }
 
-    //Fields
-    public int XPos
+    public int PosY
     {
-        get { return base.xPos; }
-        set { base.xPos = value; }
-    }
-
-    public int YPos
-    {
-        get { return base.yPos; }
-        set { base.yPos = value; }
+        get { return base.posY; }
+        set { base.posY = value; }
     }
 
     public int Health
@@ -39,90 +22,79 @@ public class FactoryBuilding : Building
         set { base.health = value; }
     }
 
-    public int MaxHealth
+    public string Symbol
     {
-        get { return base.health; }
+        get { return base.symbol; }
     }
 
-    public int Faction
+    public int FactionType
     {
-        get { return base.faction; }
-        set { base.faction = value; }
-    }
-    public bool IsDestroyed { get; set; }
-
-
-    public int ProductionSpeed
-    {
-        get { return productionSpeed; }
+        get { return base.factionType; }
     }
 
-    //Method for the buildings to generate units 
-    public Unit BuildUnit(int factions)
+    private int spawnSpeed;
+
+    public int SpawnSpeed
     {
-        if (faction == 1)
+        get { return spawnSpeed; }
+    }
+
+    public string UnitType
+    {
+        get { return unitType; }
+    }
+
+    public int SpawnPointX
+    {
+        get { return spawnPointX; }
+        set { spawnPointX = value; }
+    }
+
+    public int SpawnPointY
+    {
+        get { return spawnPointY; }
+        set { spawnPointY = value; }
+    }
+
+    private int spawnCost;
+
+    public int SpawnCost
+    {
+        get { return spawnCost; }
+        set { spawnCost = value; }
+    }
+
+    private string unitType;
+    private int spawnPointX, spawnPointY;
+
+    public FactoryBuilding(int x, int y, int hp, int faction, int sSpeed, string uType, int sCost)
+        : base(x, y, hp, faction)
+    {
+        spawnSpeed = sSpeed;
+        unitType = uType;
+
+        SpawnCost = sCost;
+    }
+
+    //Returns a unit to be spawned
+    public Unit SpawnUnit()
+    {
+        if (unitType == "Melee")
         {
-            if (unitType == "Melee")
-            {
-                MeleeUnit m = new MeleeUnit(xPos,
-                                            yPos--,
-                                            100,
-                                            1,
-                                            20,
-                                            1);
-                return m;
-            }
-            else if (unitType == "Ranged")
-            {
-                RangedUnit ru = new RangedUnit(xPos,
-                                            yPos--,
-                                            100,
-                                            1,
-                                            20,
-                                            5,
-                                            1);
-                return ru;
-            }
+            MeleeUnit knight = new MeleeUnit("Barbarian", SpawnPointX, SpawnPointY, factionType, 40, 1, 5, 1, false);
+            return knight;
         }
-        else if (faction == 0)
+        else
         {
-            if (unitType == "Melee")
-            {
-                MeleeUnit m = new MeleeUnit(xPos,
-                                            yPos--,
-                                            100,
-                                            1,
-                                            20,
-                                            0);
-                return m;
-            }
-            else if (unitType == "Ranged")
-            {
-                RangedUnit ru = new RangedUnit(xPos,
-                                            yPos--,
-                                            100,
-                                            1,
-                                            20,
-                                            5,
-                                            0);
-                return ru;
-            }
+            RangedUnit archer = new RangedUnit("Tank", SpawnPointX, SpawnPointY, FactionType, 30, 1, 3, 3, false);
+            return archer;
         }
-
-        RangedUnit rb = new RangedUnit(xPos,
-                                            yPos--,
-                                            100,
-                                            1,
-                                            20,
-                                            5,
-                                            0);
-        return rb;
     }
 
-    //Method to destroy buildings
-    public override bool Destruction()
+    //Returns if the building has more than 0 health of not
+    public override bool Death()
     {
-        if (health <= 0)
+        if (Health <= 0)
         {
             return true;
         }
@@ -132,15 +104,4 @@ public class FactoryBuilding : Building
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

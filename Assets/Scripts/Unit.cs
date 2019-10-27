@@ -4,34 +4,38 @@ using UnityEngine;
 
 public abstract class Unit : MonoBehaviour
 {
-        //Protected variables for other classes to inherit
-        protected int xPos,
-                      yPos,
-                      health,
-                      maxHealth,
-                      speed,
-                      attack,
-                      attackRange,
-                      faction;
-        protected bool isAttacking;
-        protected string name;
+    protected string name;
+    protected int posX, posY;
+    protected int health;
+    protected int maxHealth;
+    protected int speed;
+    protected int attack, attackRange;
+    protected string symbol;
+    protected int factionType;
+    protected bool isAttacking;
 
-        //Abstract methods 
-        public abstract void Move(int dir);
-        public abstract void Combat(Unit attacker);
-        public abstract bool InRange(Unit other, Building otherino);
-        public abstract (Unit, int) Closest(List<Unit> units);
-        public abstract bool Death();
-
-    // Start is called before the first frame update
-    void Start()
+    public Unit(string n, int x, int y, int hp, int sp, int att, int attRange, int faction, bool isAtt)
     {
-        
+        name = n;
+        posX = x;
+        posY = y;
+        health = hp;
+        speed = sp;
+        attack = att;
+        attackRange = attRange;
+        factionType = faction;
+        isAttacking = isAtt;
+
+        maxHealth = hp;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public abstract void Move(int type);
+
+    public abstract void Combat(int type);
+
+    public abstract void CheckAttackRange(List<Unit> uni, List<Building> build);
+
+    public abstract Unit ClosestEnemy();
+
+    public abstract bool Death();
 }

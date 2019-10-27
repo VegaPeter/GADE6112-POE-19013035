@@ -4,32 +4,16 @@ using UnityEngine;
 
 public class ResourceBuilding : Building
 {
-    //Constructor that catches all the variables to use in their own class
-    public ResourceBuilding(int x, int y, int h, int f, bool des)
+    public int PosX
     {
-        xPos = x;
-        yPos = y;
-        health = h;
-        faction = f;
+        get { return base.posX; }
+        set { base.posX = value; }
     }
 
-    //Additional variables to be used in the class
-    private string resourceType = "Grog";
-    private int resourcesGenerated = 0;
-    private int resourcesGeneratedPerRound;
-    private int resourcePool = 100;
-
-    //Fields that the class requires access to 
-    public int XPos
+    public int PosY
     {
-        get { return base.xPos; }
-        set { base.xPos = value; }
-    }
-
-    public int YPos
-    {
-        get { return base.yPos; }
-        set { base.yPos = value; }
+        get { return base.posY; }
+        set { base.posY = value; }
     }
 
     public int Health
@@ -38,21 +22,59 @@ public class ResourceBuilding : Building
         set { base.health = value; }
     }
 
-    public int MaxHealth
+    public string Symbol
     {
-        get { return base.health; }
+        get { return base.symbol; }
     }
 
-    public int Faction
+    public int FactionType
     {
-        get { return base.faction; }
-        set { base.faction = value; }
+        get { return base.factionType; }
     }
-    public bool IsDestroyed { get; set; }
 
-    public override bool Destruction()
+    public int ResresourcesGenerated
     {
-        if (health <= 0)
+        get { return resourcesGenerated; }
+    }
+
+    public int ResresourcesLeft
+    {
+        get { return resourcesRemaining; }
+    }
+    private int resourcesGenerated = 0;
+    private int resourcesPerRound;
+    private int resourcesRemaining = 1000;
+
+
+    public ResourceBuilding(int x, int y, int hp, int faction, int resPerRound)
+        : base(x, y, hp, faction)
+    {
+        resourcesPerRound = resPerRound;
+    }
+
+    //Mines the resources adding them and then removing them from the resources left
+    public int GenerateResource()
+    {
+        resourcesGenerated = 0;
+
+        if (resourcesRemaining > 10)
+        {
+            resourcesGenerated += resourcesPerRound;
+            resourcesRemaining -= resourcesPerRound;
+        }
+        else if (resourcesRemaining > 0)
+        {
+            resourcesGenerated += resourcesRemaining;
+            resourcesRemaining = 0;
+        }
+
+        return resourcesGenerated;
+    }
+
+    //Returns if the building has more than 0 health of not
+    public override bool Death()
+    {
+        if (Health <= 0)
         {
             return true;
         }
@@ -62,26 +84,4 @@ public class ResourceBuilding : Building
         }
     }
 
-    //Method that handles the round to round changes for the building
-    public int ResourceTick()
-    {
-        resourceType = "Grog"; //Resource name
-        resourcesGeneratedPerRound = 10; //Resource per tick
-        resourcePool -= resourcesGeneratedPerRound; //Leftover resources
-        resourcesGenerated += resourcesGeneratedPerRound; //Total resources in stockpile
-
-        return resourcesGenerated;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

@@ -4,25 +4,21 @@ using UnityEngine;
 
 public abstract class Building : MonoBehaviour
 {
-    //Variables for other classes to inherit
-    protected int xPos,
-                  yPos,
-                  health,
-                  maxHealth,
-                  faction;
+    protected int posX, posY;
+    protected int health, maxHealth;
+    protected int factionType;
+    protected string symbol;
 
-    //Abstract method for other buildings to inherit
-    public abstract bool Destruction();
-
-    // Start is called before the first frame update
-    void Start()
+    public Building(int x, int y, int hp, int faction)
     {
-        
+        posX = x;
+        posY = y;
+        health = hp;
+
+        factionType = faction;
+
+        maxHealth = hp;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public abstract bool Death();
 }

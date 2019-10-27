@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameEngine : MonoBehaviour
 {
     //Declarations for the GameEngine class
+    int gameTick;
+    bool runGame = false;
     private Map map;
     private int temp = 0;
     private int round;
@@ -18,6 +21,37 @@ public class GameEngine : MonoBehaviour
                       blueRanged,
                       blueUnitFactory,
                       blueResourceFactory;
+    //All texts for the UI
+    public Text txtPausePlay;
+    public Text txtRound;
+    //Radient texts
+    public Text txtRadientResourseLeft;
+    public Text txtRadientResourseGathered;
+    public Text txtRadientUnits;
+    //Dire texts
+    public Text txtDireResourseLeft;
+    public Text txtDireResourseGathered;
+    public Text txtDireUnits;
+
+    public Text txtWinText;
+
+    //Variables that can be adjusted by the user to change the map size
+    const int mapHeight = 20;
+    const int mapWidth = 20;
+
+    //Variables to indacate how many resources each team has
+    int direResources = 0;
+    int direResourcesLeft;
+
+    int radientResources = 0;
+    int radientResourcesLeft;
+
+    //Variables to adjust how many units and buildings will spawn
+    static int unitNum = 8;
+    static int buildingNum = 6;
+
+    int dire = 0;
+    int radiant = 0;
 
     //Fields
     public int Round
@@ -34,44 +68,44 @@ public class GameEngine : MonoBehaviour
         {
             MeleeUnit start = (MeleeUnit)a;
             MeleeUnit end = (MeleeUnit)b;
-            distance = Mathf.Abs(start.XPos - end.XPos) + Mathf.Abs(start.YPos - end.YPos);
+            distance = Mathf.Abs(start.PosX - end.PosX) + Mathf.Abs(start.PosY - end.PosY);
         }
         else if (a is RangedUnit && b is MeleeUnit)
         {
             RangedUnit start = (RangedUnit)a;
             MeleeUnit end = (MeleeUnit)b;
-            distance = Mathf.Abs(start.XPos - end.XPos) + Mathf.Abs(start.YPos - end.YPos);
+            distance = Mathf.Abs(start.PosX - end.PosX) + Mathf.Abs(start.PosY - end.PosY);
         }
         else if (a is RangedUnit && b is RangedUnit)
         {
             RangedUnit start = (RangedUnit)a;
             RangedUnit end = (RangedUnit)b;
-            distance = Mathf.Abs(start.XPos - end.XPos) + Mathf.Abs(start.YPos - end.YPos);
+            distance = Mathf.Abs(start.PosX - end.PosX) + Mathf.Abs(start.PosY - end.PosY);
         }
         else if (a is MeleeUnit && b is RangedUnit)
         {
             MeleeUnit start = (MeleeUnit)a;
             RangedUnit end = (RangedUnit)b;
-            distance = Mathf.Abs(start.XPos - end.XPos) + Mathf.Abs(start.YPos - end.YPos);
+            distance = Mathf.Abs(start.PosX - end.PosX) + Mathf.Abs(start.PosY - end.PosY);
         }
         //Add wizards
         else if (a is WizardUnit && b is WizardUnit)
         {
             WizardUnit start = (WizardUnit)a;
             WizardUnit end = (WizardUnit)b;
-            distance = Mathf.Abs(start.XPos - end.XPos) + Mathf.Abs(start.YPos - end.YPos);
+            distance = Mathf.Abs(start.PosX - end.PosX) + Mathf.Abs(start.PosY - end.PosY);
         }
         else if (a is MeleeUnit && b is WizardUnit)
         {
             WizardUnit start = (WizardUnit)a;
             MeleeUnit end = (MeleeUnit)b;
-            distance = Mathf.Abs(start.XPos - end.XPos) + Mathf.Abs(start.YPos - end.YPos);
+            distance = Mathf.Abs(start.PosX - end.PosX) + Mathf.Abs(start.PosY - end.PosY);
         }
         else if (a is RangedUnit && b is WizardUnit)
         {
             WizardUnit start = (WizardUnit)a;
             RangedUnit end = (RangedUnit)b;
-            distance = Mathf.Abs(start.XPos - end.XPos) + Mathf.Abs(start.YPos - end.YPos);
+            distance = Mathf.Abs(start.PosX - end.PosX) + Mathf.Abs(start.PosY - end.PosY);
         }
 
         return distance;
@@ -101,325 +135,171 @@ public class GameEngine : MonoBehaviour
         }
     }
 
-    public void GameLogic()
+    private void GameLogic()
     {
-        CheckDeath();
-        for (int i = 0; i < map.Units.Count; i++)
+        Display();
+
+        //Working out if both teams are alive
+        dire = 0;
+        radiant = 0;
+
+        foreach (Building B in map.buildings)
         {
-            if (map.Units[i] is MeleeUnit)
+            if (B is ResourceBuilding)
             {
-                MeleeUnit mu = (MeleeUnit)map.Units[i];
-                if (mu.Health <= mu.MaxHealth * 0.25) // Running Away
+                ResourceBuilding RB = (ResourceBuilding)B;
+                if (RB.FactionType == 0)
                 {
-                    mu.Move(Random.Range(0, 4));
+                    dire++;
                 }
                 else
                 {
-                    (Unit closest, int distanceTo) = mu.Closest(map.Units);
-                    (Building buildingclosest, int distanceToBuilding) = mu.BuildingClosest(map.Buildings);
-
-                    if (distanceTo > distanceToBuilding)
-                    {
-                        //Check In Range
-                        if (distanceTo <= mu.AttackRange)
-                        {
-                            mu.IsAttacking = true;
-                            mu.Combat(closest);
-                        }
-                        else //Move Towards
-                        {
-                            if (closest is MeleeUnit)
-                            {
-                                MeleeUnit closestMu = (MeleeUnit)closest;
-                                if (mu.XPos > closestMu.XPos) //North
-                                {
-                                    mu.Move(0);
-                                }
-                                else if (mu.XPos < closestMu.XPos) //South
-                                {
-                                    mu.Move(2);
-                                }
-                                else if (mu.YPos > closestMu.YPos) //West
-                                {
-                                    mu.Move(3);
-                                }
-                                else if (mu.YPos < closestMu.YPos) //East
-                                {
-                                    mu.Move(1);
-                                }
-                            }
-                            else if (closest is RangedUnit)
-                            {
-                                RangedUnit closestRu = (RangedUnit)closest;
-                                if (mu.XPos > closestRu.XPos) //North
-                                {
-                                    mu.Move(0);
-                                }
-                                else if (mu.XPos < closestRu.XPos) //South
-                                {
-                                    mu.Move(2);
-                                }
-                                else if (mu.YPos > closestRu.YPos) //West
-                                {
-                                    mu.Move(3);
-                                }
-                                else if (mu.YPos < closestRu.YPos) //East
-                                {
-                                    mu.Move(1);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //Check In Range
-                        if (distanceTo <= mu.AttackRange)
-                        {
-                            mu.IsAttacking = true;
-                            mu.Combat(closest);
-                        }
-                        else //Move Towards
-                        {
-                            if (buildingclosest is FactoryBuilding)
-                            {
-                                FactoryBuilding closestMu = (FactoryBuilding)buildingclosest;
-                                if (mu.XPos > closestMu.XPos) //North
-                                {
-                                    mu.Move(0);
-                                }
-                                else if (mu.XPos < closestMu.XPos) //South
-                                {
-                                    mu.Move(2);
-                                }
-                                else if (mu.YPos > closestMu.YPos) //West
-                                {
-                                    mu.Move(3);
-                                }
-                                else if (mu.YPos < closestMu.YPos) //East
-                                {
-                                    mu.Move(1);
-                                }
-                            }
-                            else if (buildingclosest is ResourceBuilding)
-                            {
-                                ResourceBuilding closestRu = (ResourceBuilding)buildingclosest;
-                                if (mu.XPos > closestRu.XPos) //North
-                                {
-                                    mu.Move(0);
-                                }
-                                else if (mu.XPos < closestRu.XPos) //South
-                                {
-                                    mu.Move(2);
-                                }
-                                else if (mu.YPos > closestRu.YPos) //West
-                                {
-                                    mu.Move(3);
-                                }
-                                else if (mu.YPos < closestRu.YPos) //East
-                                {
-                                    mu.Move(1);
-                                }
-                            }
-                        }
-                    }
-
+                    radiant++;
                 }
             }
-            else if (map.Units[i] is RangedUnit)
+            else
             {
-                RangedUnit ru = (RangedUnit)map.Units[i];
-                if (ru.Health == 0)
+                FactoryBuilding FB = (FactoryBuilding)B;
+                if (FB.FactionType == 0)
                 {
-                    ru.Move(-1);
-                    
-                }
-                else if (ru.Health <= ru.MaxHealth * 0.25)
-                {
-                    ru.Move(Random.Range(0, 4));
+                    dire++;
                 }
                 else
                 {
-                    (Unit closest, int distanceTo) = ru.Closest(map.Units);
-                    (Building buildingclosest, int distanceToBuilding) = ru.BuildingClosest(map.Buildings);
-
-                    if (distanceTo > distanceToBuilding)
-                    {
-                        //Check In Range
-                        if (distanceTo <= ru.AttackRange)
-                        {
-                            ru.IsAttacking = true;
-                            ru.Combat(closest);
-                        }
-                        else //Move Towards
-                        {
-                            if (closest is MeleeUnit)
-                            {
-                                MeleeUnit closestMu = (MeleeUnit)closest;
-                                if (ru.XPos > closestMu.XPos) //North
-                                {
-                                    ru.Move(0);
-                                }
-                                else if (ru.XPos < closestMu.XPos) //South
-                                {
-                                    ru.Move(2);
-                                }
-                                else if (ru.YPos > closestMu.YPos) //West
-                                {
-                                    ru.Move(3);
-                                }
-                                else if (ru.YPos < closestMu.YPos) //East
-                                {
-                                    ru.Move(1);
-                                }
-                            }
-                            else if (closest is RangedUnit)
-                            {
-                                RangedUnit closestRu = (RangedUnit)closest;
-                                if (ru.XPos > closestRu.XPos) //North
-                                {
-                                    ru.Move(0);
-                                }
-                                else if (ru.XPos < closestRu.XPos) //South
-                                {
-                                    ru.Move(2);
-                                }
-                                else if (ru.YPos > closestRu.YPos) //West
-                                {
-                                    ru.Move(3);
-                                }
-                                else if (ru.YPos < closestRu.YPos) //East
-                                {
-                                    ru.Move(1);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //Check In Range
-                        if (distanceTo <= ru.AttackRange)
-                        {
-                            ru.IsAttacking = true;
-                            ru.Combat(closest);
-                        }
-                        else //Move Towards
-                        {
-                            if (buildingclosest is FactoryBuilding)
-                            {
-                                FactoryBuilding closestMu = (FactoryBuilding)buildingclosest;
-                                if (ru.XPos > closestMu.XPos) //North
-                                {
-                                    ru.Move(0);
-                                }
-                                else if (ru.XPos < closestMu.XPos) //South
-                                {
-                                    ru.Move(2);
-                                }
-                                else if (ru.YPos > closestMu.YPos) //West
-                                {
-                                    ru.Move(3);
-                                }
-                                else if (ru.YPos < closestMu.YPos) //East
-                                {
-                                    ru.Move(1);
-                                }
-                            }
-                            else if (buildingclosest is ResourceBuilding)
-                            {
-                                ResourceBuilding closestRu = (ResourceBuilding)buildingclosest;
-                                if (ru.XPos > closestRu.XPos) //North
-                                {
-                                    ru.Move(0);
-                                }
-                                else if (ru.XPos < closestRu.XPos) //South
-                                {
-                                    ru.Move(2);
-                                }
-                                else if (ru.YPos > closestRu.YPos) //West
-                                {
-                                    ru.Move(3);
-                                }
-                                else if (ru.YPos < closestRu.YPos) //East
-                                {
-                                    ru.Move(1);
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-            else if (map.Units[i] is WizardUnit)
-            {
-                WizardUnit wu = (WizardUnit)map.Units[i];
-                if (wu.Health == 0)
-                {
-                    wu.Move(-1);
-                }
-                else if (wu.Health <= wu.MaxHealth * 0.5) // Running Away
-                {
-                    wu.Move(Random.Range(0, 4));
-                }
-                else
-                {
-                    (Unit closest, int distanceTo) = wu.Closest(map.Units);
-
-                    //Check In Range
-                    if (distanceTo <= wu.AttackRange)
-                    {
-                        wu.IsAttacking = true;
-                        wu.Combat(closest);
-                    }
-                    else //Move Towards
-                    {
-                        if (closest is MeleeUnit)
-                        {
-                            MeleeUnit closestMu = (MeleeUnit)closest;
-                            if (wu.XPos > closestMu.XPos) //North
-                            {
-                                wu.Move(0);
-                            }
-                            else if (wu.XPos < closestMu.XPos) //South
-                            {
-                                wu.Move(2);
-                            }
-                            else if (wu.YPos > closestMu.YPos) //West
-                            {
-                                wu.Move(3);
-                            }
-                            else if (wu.YPos < closestMu.YPos) //East
-                            {
-                                wu.Move(1);
-                            }
-                        }
-                        else if (closest is RangedUnit)
-                        {
-                            RangedUnit closestRu = (RangedUnit)closest;
-                            if (wu.XPos > closestRu.XPos) //North
-                            {
-                                wu.Move(0);
-                            }
-                            else if (wu.XPos < closestRu.XPos) //South
-                            {
-                                wu.Move(2);
-                            }
-                            else if (wu.YPos > closestRu.YPos) //West
-                            {
-                                wu.Move(3);
-                            }
-                            else if (wu.YPos < closestRu.YPos) //East
-                            {
-                                wu.Move(1);
-                            }
-                        }
-                    }
-
+                    radiant++;
                 }
             }
         }
 
-        Display();
-        round++;
+        foreach (Unit u in map.Units)
+        {
+            if (u is MeleeUnit)
+            {
+                MeleeUnit mu = (MeleeUnit)u;
+                if(mu.FactionType == 0)
+                {
+                    dire++;
+                }
+                else
+                {
+                    radiant++;
+                }
+            }
+            else if (u is RangedUnit)
+            {
+                RangedUnit ru = (RangedUnit)u;
+                if (ru.FactionType == 0)
+                {
+                    dire++;
+                }
+                else
+                {
+                    radiant++;
+                }
+            }
+            else
+            {
+            }
+        }
+
+        if (dire > 0 && radiant > 0)//Checks to see if both teams are still alive
+        {
+            //Reset resource values
+            direResourcesLeft = 0;
+            radientResourcesLeft = 0;
+
+            foreach (Building b in map.buildings)
+            {
+                if (b is ResourceBuilding)
+                {
+                    ResourceBuilding RB = (ResourceBuilding)b;
+                    if (RB.FactionType == 0)
+                    {
+                        direResources += RB.GenerateResource();
+                        direResourcesLeft += RB.ResresourcesLeft;
+                    }
+                    else if (RB.FactionType == 1)
+                    {
+                        radientResources += RB.GenerateResource();
+                        radientResourcesLeft += RB.ResresourcesLeft;
+                    }
+                }
+                else
+                {
+                    FactoryBuilding FB = (FactoryBuilding)b;
+                    Unit u = FB.SpawnUnit();
+
+                    if (FB.FactionType == 0 && direResources > FB.SpawnCost)
+                    {
+                        if (round % FB.SpawnSpeed == 0)
+                        {
+                            map.units.Add(u);
+
+                            if (u is MeleeUnit)
+                            {
+                                MeleeUnit M = (MeleeUnit)u;
+
+                                M.MapHeight = mapHeight;
+                                M.MapWidth = mapWidth;
+                                map.Units.Add(M);
+                            }
+                            else if (u is RangedUnit)
+                            {
+                                RangedUnit R = (RangedUnit)u;
+
+                                R.MapHeight = mapHeight;
+                                R.MapWidth = mapWidth;
+                                map.Units.Add(R);
+                            }
+                            direResources -= FB.SpawnCost;
+
+                        }
+                    }
+                    else if (FB.FactionType == 1 && radientResources > FB.SpawnCost)
+                    {
+                        if (round % FB.SpawnSpeed == 0)
+                        {
+
+                            if (u is MeleeUnit)
+                            {
+                                MeleeUnit M = (MeleeUnit)u;
+
+                                map.Units.Add(M);
+                            }
+                            else if (u is RangedUnit)
+                            {
+                                RangedUnit R = (RangedUnit)u;
+
+                                map.Units.Add(R);
+                            }
+                            radientResources -= FB.SpawnCost;
+                        }
+                    }
+                }
+            }
+            foreach (Unit u in map.units)
+            {
+                u.CheckAttackRange(map.units, map.buildings);
+            }
+
+            round++;
+            CheckDeath();
+            Display();
+        }
+        else
+        {
+            Display();
+            runGame = false;
+
+            if (dire > radiant)
+            {
+                txtWinText.text = "Dire Wins!";
+            }
+            else
+            {
+                txtWinText.text = "Radient Wins!";
+            }
+        }
     }
 
     public void CheckDeath()
@@ -458,31 +338,31 @@ public class GameEngine : MonoBehaviour
             if (u is MeleeUnit)
             {
                 MeleeUnit mu = (MeleeUnit)u;
-                if (mu.Faction == 0)
+                if (mu.FactionType == 0)
                 {
-                    Instantiate(redMelee, new Vector3(mu.XPos, 0, mu.YPos), Quaternion.identity);
+                    Instantiate(redMelee, new Vector3(mu.PosX, 0, mu.PosY), Quaternion.identity);
                 }
                 else
                 {
-                    Instantiate(blueMelee, new Vector3(mu.XPos, 0, mu.YPos), Quaternion.identity);
+                    Instantiate(blueMelee, new Vector3(mu.PosX, 0, mu.PosY), Quaternion.identity);
                 }
             }
             else if (u is RangedUnit)
             {
                 RangedUnit ru = (RangedUnit)u;
-                if (ru.Faction == 0)
+                if (ru.FactionType == 0)
                 {
-                    Instantiate(redRanged, new Vector3(ru.XPos, 0, ru.YPos), Quaternion.identity);
+                    Instantiate(redRanged, new Vector3(ru.PosX, 0, ru.PosY), Quaternion.identity);
                 }
                 else
                 {
-                    Instantiate(blueRanged, new Vector3(ru.XPos, 0, ru.YPos), Quaternion.identity);
+                    Instantiate(blueRanged, new Vector3(ru.PosX, 0, ru.PosY), Quaternion.identity);
                 }
             }
             else
             {
                 WizardUnit wu = (WizardUnit)u;
-                Instantiate(wizard, new Vector3(wu.XPos, 0, wu.YPos), Quaternion.identity);
+                Instantiate(wizard, new Vector3(wu.PosX, 0, wu.PosY), Quaternion.identity);
             }
 
         }
@@ -496,26 +376,26 @@ public class GameEngine : MonoBehaviour
             {
                 ResourceBuilding rb = (ResourceBuilding)bud;
 
-                if (rb.Faction == 0)
+                if (rb.FactionType == 0)
                 {
-                    Instantiate(redResourceFactory, new Vector3(rb.XPos, 0, rb.YPos), Quaternion.identity);
+                    Instantiate(redResourceFactory, new Vector3(rb.PosX, 0, rb.PosY), Quaternion.identity);
                 }
                 else
                 {
-                    Instantiate(blueResourceFactory, new Vector3(rb.XPos, 0, rb.YPos), Quaternion.identity);
+                    Instantiate(blueResourceFactory, new Vector3(rb.PosX, 0, rb.PosY), Quaternion.identity);
                 }
             }
             else
             {
                 FactoryBuilding fb = (FactoryBuilding)bud;
 
-                if (fb.Faction == 0)
+                if (fb.FactionType == 0)
                 {
-                    Instantiate(redUnitFactory, new Vector3(fb.XPos, 0, fb.YPos), Quaternion.identity);
+                    Instantiate(redUnitFactory, new Vector3(fb.PosX, 0, fb.PosY), Quaternion.identity);
                 }
                 else
                 {
-                    Instantiate(blueUnitFactory, new Vector3(fb.XPos, 0, fb.YPos), Quaternion.identity);
+                    Instantiate(blueUnitFactory, new Vector3(fb.PosX, 0, fb.PosY), Quaternion.identity);
                 }
 
             }
