@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class GameEngine : MonoBehaviour
 {
+    public UnitController unitCo;
     //Declarations for the GameEngine class
     bool runGame = false;
     private Map map;
@@ -395,11 +396,18 @@ public class GameEngine : MonoBehaviour
                 MeleeUnit mu = (MeleeUnit)u;
                 if (mu.FactionType == 0)
                 {
-                    Instantiate(redMelee, new Vector3(mu.PosX, 0, mu.PosY), Quaternion.identity);
+                    GameObject GO = Instantiate(redMelee, new Vector3(mu.PosX, 0, mu.PosY), Quaternion.identity);
+                    unitCo = GO.GetComponent<UnitController>();
+
+                    unitCo.DisplayHealth(mu.Health);
+
                 }
                 else
                 {
-                    Instantiate(blueMelee, new Vector3(mu.PosX, 0, mu.PosY), Quaternion.identity);
+                    GameObject GO = Instantiate(blueMelee, new Vector3(mu.PosX, 0, mu.PosY), Quaternion.identity);
+                    unitCo = GO.GetComponent<UnitController>();
+
+                    unitCo.DisplayHealth(mu.Health);
                 }
             }
             else if (u is RangedUnit)
@@ -407,17 +415,26 @@ public class GameEngine : MonoBehaviour
                 RangedUnit ru = (RangedUnit)u;
                 if (ru.FactionType == 0)
                 {
-                    Instantiate(redRanged, new Vector3(ru.PosX, 0, ru.PosY), Quaternion.identity);
+                    GameObject GO = Instantiate(redRanged, new Vector3(ru.PosX, 0, ru.PosY), Quaternion.identity);
+                    unitCo = GO.GetComponent<UnitController>();
+
+                    unitCo.DisplayHealth(ru.Health);
                 }
                 else
                 {
-                    Instantiate(blueRanged, new Vector3(ru.PosX, 0, ru.PosY), Quaternion.identity);
+                    GameObject GO = Instantiate(blueRanged, new Vector3(ru.PosX, 0, ru.PosY), Quaternion.identity);
+                    unitCo = GO.GetComponent<UnitController>();
+
+                    unitCo.DisplayHealth(ru.Health);
                 }
             }
             else
             {
                 WizardUnit wu = (WizardUnit)u;
-                Instantiate(wizard, new Vector3(wu.PosX, 0, wu.PosY), Quaternion.identity);
+                GameObject GO = Instantiate(wizard, new Vector3(wu.PosX, 0, wu.PosY), Quaternion.identity);
+                unitCo = GO.GetComponent<UnitController>();
+
+                unitCo.DisplayHealth(wu.Health);
             }
 
         }
@@ -433,11 +450,17 @@ public class GameEngine : MonoBehaviour
 
                 if (rb.FactionType == 0)
                 {
-                    Instantiate(redResourceFactory, new Vector3(rb.PosX, 0, rb.PosY), Quaternion.identity);
+                    GameObject GO = Instantiate(redResourceFactory, new Vector3(rb.PosX, 0, rb.PosY), Quaternion.identity);
+                    unitCo = GO.GetComponent<UnitController>();
+
+                    unitCo.DisplayHealth(rb.Health);
                 }
                 else
                 {
-                    Instantiate(blueResourceFactory, new Vector3(rb.PosX, 0, rb.PosY), Quaternion.identity);
+                    GameObject GO = Instantiate(blueResourceFactory, new Vector3(rb.PosX, 0, rb.PosY), Quaternion.identity);
+                    unitCo = GO.GetComponent<UnitController>();
+
+                    unitCo.DisplayHealth(rb.Health);
                 }
             }
             else
@@ -446,11 +469,17 @@ public class GameEngine : MonoBehaviour
 
                 if (fb.FactionType == 0)
                 {
-                    Instantiate(redUnitFactory, new Vector3(fb.PosX, 0, fb.PosY), Quaternion.identity);
+                    GameObject GO = Instantiate(redUnitFactory, new Vector3(fb.PosX, 0, fb.PosY), Quaternion.identity);
+                    unitCo = GO.GetComponent<UnitController>();
+
+                    unitCo.DisplayHealth(fb.Health);
                 }
                 else
                 {
-                    Instantiate(blueUnitFactory, new Vector3(fb.PosX, 0, fb.PosY), Quaternion.identity);
+                    GameObject GO = Instantiate(blueUnitFactory, new Vector3(fb.PosX, 0, fb.PosY), Quaternion.identity);
+                    unitCo = GO.GetComponent<UnitController>();
+
+                    unitCo.DisplayHealth(fb.Health);
                 }
 
             }
