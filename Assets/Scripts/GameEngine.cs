@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class GameEngine : MonoBehaviour
 {
     //Declarations for the GameEngine class
-    int gameTick;
     bool runGame = false;
     private Map map;
     private int temp = 0;
@@ -111,28 +110,57 @@ public class GameEngine : MonoBehaviour
         return distance;
     }
 
+     public void PlayPause()
+     {
+        if (runGame == false)
+        {
+            runGame = true;
+            txtPausePlay.text = "Pause";
+        }
+        else
+        {
+            runGame = false;
+            txtPausePlay.text = "Resume";
+        }
+     }
+
     // Start is called before the first frame update
     void Start()
     {
         map = new Map(36, 2, 20, 20);
         map.Generate();
-        Display();
-
-        round = 1;
+            foreach (Building B in map.buildings)
+            {
+                ResourceBuilding RB = (ResourceBuilding)B;
+                if (RB.FactionType == 0)
+                {
+                    direResourcesLeft += RB.ResresourcesLeft;
+                }
+                else if (RB.FactionType == 1)
+                {
+                    radientResourcesLeft += RB.ResresourcesLeft;
+                }
+            }
+         Display();
+         round = 1;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (temp == 30)
+        if (runGame == true)
         {
-            GameLogic();
-            temp = 0;
+            if (temp == 20)
+            {
+                GameLogic();
+                temp = 0;
+            }
+            else
+            {
+                temp++;
+            }
         }
-        else
-        {
-            temp++;
-        }
+
     }
 
     private void GameLogic()
