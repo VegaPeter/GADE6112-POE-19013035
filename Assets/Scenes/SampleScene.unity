@@ -1082,6 +1082,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 165aee869ef079941ba6c08d17a71156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unitCo: {fileID: 0}
   redMelee: {fileID: 488317526326000998, guid: ccebe70924db5d346b2c343e60ec2746, type: 3}
   redRanged: {fileID: 877376717364023161, guid: 2f8bed80c8feb0c489946ad6a865c11a,
     type: 3}
