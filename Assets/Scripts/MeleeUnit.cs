@@ -331,9 +331,6 @@ public class MeleeUnit : Unit
 
             bDistance = (int)Mathf.Round(Mathf.Sqrt(xDis + yDis));
         }
-
-        if (units[0] != null)
-        {
             if (uDistance < bDistance)
             {
                 distance = uDistance;
@@ -344,12 +341,6 @@ public class MeleeUnit : Unit
                 distance = bDistance;
                 enemyType = 1;
             }
-        }
-        else
-        {
-            distance = bDistance;
-            enemyType = 1;
-        }
 
         //Checks to see if they are below 25% health so they move rather than attacking
         if (Health > MaxHealth * 0.25)
@@ -394,6 +385,7 @@ public class MeleeUnit : Unit
 
                     distance = Mathf.Round(Mathf.Sqrt(xDis + yDis));
                 }
+
             }
             else if (u is MeleeUnit)
             {

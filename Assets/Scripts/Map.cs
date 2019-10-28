@@ -56,45 +56,62 @@ public class Map : MonoBehaviour
         //PvP Teams
         for (int i = 0; i < numUnits; i++)
         {
-            if (Random.Range(0, 3) == 0) //Generate Melee Unit
+            int holdMe;
+            holdMe = Random.Range(0, 2);
+
+            if (holdMe == 0) //Generate Melee Unit
             {
                 MeleeUnit m = new MeleeUnit("Barbarian",
                                             Random.Range(0, width),
                                             Random.Range(0, height),
                                             (i % 2 == 0 ? 1 : 0),
-                                            100,
+                                            10,
                                             1,
-                                            25,
+                                            5,
                                             1,
                                             false
                                             );
                 units.Add(m);
             }
-            else if (Random.Range(0, 3) == 1) // Generate Ranged Unit
+            else if (holdMe == 1) // Generate Ranged Unit
             {
                 RangedUnit ru = new RangedUnit("Tank",
                                             Random.Range(0, width),
                                             Random.Range(0, height),
                                             (i % 2 == 0 ? 1 : 0),
-                                            75,
-                                            2,
-                                            30,
+                                            7,
+                                            1,
                                             3,
+                                            2,
                                             false
                                             );
                 units.Add(ru);
             }
-
+            else
+            {
+                WizardUnit wu = new WizardUnit("Lich",
+                                 Random.Range(0, width),
+                                 Random.Range(0, height),
+                                 3,
+                                 6,
+                                 1,
+                                 5,
+                                 1,
+                                 false
+                                 );
+                units.Add(wu);
+            }
         }
+
         for(int l = 0; l < 6; l++)
         {
            WizardUnit wu = new WizardUnit("Lich",
                                             Random.Range(0, width),
                                             Random.Range(0, height),
-                                            (l % 2 == 0 ? 1 : 0),
-                                            60,
-                                            2,
-                                            15,
+                                            3,
+                                            6,
+                                            1,
+                                            5,
                                             1,
                                             false
                                             );
@@ -107,20 +124,20 @@ public class Map : MonoBehaviour
             {
                 ResourceBuilding rb = new ResourceBuilding(Random.Range(0, width),
                                                            Random.Range(0, height),
-                                                           150,
+                                                           20,
                                                            (k % 2 == 0 ? 1 : 0),
-                                                           10);
+                                                           3);
                 buildings.Add(rb);
             }
             else //Generate Unit Building
             {
                 FactoryBuilding fb = new FactoryBuilding(Random.Range(0, width),
                                                          Random.Range(0, height),
-                                                         200,
+                                                         20,
                                                          (k % 2 == 0 ? 1 : 0),
-                                                         5,
+                                                         10,
                                                          (Random.Range(0, 2) == 1 ? "Melee" : "Ranged"),
-                                                         15);
+                                                         100);
 
                 buildings.Add(fb);
             }

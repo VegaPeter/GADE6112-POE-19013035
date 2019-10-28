@@ -20,17 +20,18 @@ public class GameEngine : MonoBehaviour
                       blueRanged,
                       blueUnitFactory,
                       blueResourceFactory;
+
     //All texts for the UI
     public Text txtPausePlay;
     public Text txtRound;
     //Radient texts
-    public Text txtRadientResourseLeft;
-    public Text txtRadientResourseGathered;
-    public Text txtRadientUnits;
+    public Text txtBlueResourcesLeft;
+    public Text txtBlueResourcesGathered;
+    public Text txtBlueUnitsLeft;
     //Dire texts
-    public Text txtDireResourseLeft;
-    public Text txtDireResourseGathered;
-    public Text txtDireUnits;
+    public Text txtRedResourcesLeft;
+    public Text txtRedResourcesGathered;
+    public Text txtRedUnitsLeft;
 
     public Text txtWinText;
 
@@ -39,18 +40,18 @@ public class GameEngine : MonoBehaviour
     const int mapWidth = 20;
 
     //Variables to indacate how many resources each team has
-    int direResources = 0;
-    int direResourcesLeft;
+    int redResources = 0;
+    int redResourcesLeft;
 
-    int radientResources = 0;
-    int radientResourcesLeft;
+    int blueResources = 0;
+    int blueResourcesLeft;
 
     //Variables to adjust how many units and buildings will spawn
-    static int unitNum = 8;
-    static int buildingNum = 6;
+    //static int unitNum = 8;
+    //static int buildingNum = 6;
 
-    int dire = 0;
-    int radiant = 0;
+    int red = 0;
+    int blue = 0;
 
     //Fields
     public int Round
@@ -109,6 +110,18 @@ public class GameEngine : MonoBehaviour
 
         return distance;
     }
+    public void ResourceDisplay()
+    {
+        txtRound.text = "Round: " + round;
+        txtBlueUnitsLeft.text = "Blue Units Left: " + blue;
+        txtRedUnitsLeft.text = "Red Units Left: " + red;
+
+        txtBlueResourcesLeft.text = "Blue Resources Left: " + blueResourcesLeft;
+        txtRedResourcesLeft.text = "Red Resources Left: " + redResourcesLeft;
+
+        txtBlueResourcesGathered.text = "Blue Resources Gathered: " + blueResources;
+        txtRedResourcesGathered.text = "Red Resources Gathered: " + redResources;
+    }
 
      public void PlayPause()
      {
@@ -127,22 +140,29 @@ public class GameEngine : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        map = new Map(36, 2, 20, 20);
+        map = new Map(16, 6, 15, 15);
         map.Generate();
+
             foreach (Building B in map.buildings)
             {
-                ResourceBuilding RB = (ResourceBuilding)B;
-                if (RB.FactionType == 0)
+                if (B is ResourceBuilding)
                 {
-                    direResourcesLeft += RB.ResresourcesLeft;
+                    ResourceBuilding RB = (ResourceBuilding)B;
+                    if (RB.FactionType == 0)
+                    {
+                        redResourcesLeft += RB.ResresourcesLeft;
+                    }
+                    else if (RB.FactionType == 1)
+                    {
+                        blueResourcesLeft += RB.ResresourcesLeft;
+                    }
                 }
-                else if (RB.FactionType == 1)
-                {
-                    radientResourcesLeft += RB.ResresourcesLeft;
-                }
+
             }
          Display();
-         round = 1;
+         round = 0;
+         ResourceDisplay();
+
     }
 
     // Update is called once per frame
@@ -165,11 +185,10 @@ public class GameEngine : MonoBehaviour
 
     private void GameLogic()
     {
-        Display();
-
+        ResourceDisplay();
         //Working out if both teams are alive
-        dire = 0;
-        radiant = 0;
+        red = 0;
+        blue = 0;
 
         foreach (Building B in map.buildings)
         {
@@ -178,11 +197,11 @@ public class GameEngine : MonoBehaviour
                 ResourceBuilding RB = (ResourceBuilding)B;
                 if (RB.FactionType == 0)
                 {
-                    dire++;
+                    red++;
                 }
                 else
                 {
-                    radiant++;
+                    blue++;
                 }
             }
             else
@@ -190,11 +209,11 @@ public class GameEngine : MonoBehaviour
                 FactoryBuilding FB = (FactoryBuilding)B;
                 if (FB.FactionType == 0)
                 {
-                    dire++;
+                    red++;
                 }
                 else
                 {
-                    radiant++;
+                    blue++;
                 }
             }
         }
@@ -206,11 +225,11 @@ public class GameEngine : MonoBehaviour
                 MeleeUnit mu = (MeleeUnit)u;
                 if(mu.FactionType == 0)
                 {
-                    dire++;
+                    red++;
                 }
                 else
                 {
-                    radiant++;
+                    blue++;
                 }
             }
             else if (u is RangedUnit)
@@ -218,11 +237,11 @@ public class GameEngine : MonoBehaviour
                 RangedUnit ru = (RangedUnit)u;
                 if (ru.FactionType == 0)
                 {
-                    dire++;
+                    red++;
                 }
                 else
                 {
-                    radiant++;
+                    blue++;
                 }
             }
             else
@@ -230,11 +249,11 @@ public class GameEngine : MonoBehaviour
             }
         }
 
-        if (dire > 0 && radiant > 0)//Checks to see if both teams are still alive
+        if (red > 0 && blue > 0)//Checks to see if both teams are still alive
         {
             //Reset resource values
-            direResourcesLeft = 0;
-            radientResourcesLeft = 0;
+            redResourcesLeft = 0;
+            blueResourcesLeft = 0;
 
             foreach (Building b in map.buildings)
             {
@@ -243,13 +262,13 @@ public class GameEngine : MonoBehaviour
                     ResourceBuilding RB = (ResourceBuilding)b;
                     if (RB.FactionType == 0)
                     {
-                        direResources += RB.GenerateResource();
-                        direResourcesLeft += RB.ResresourcesLeft;
+                        redResources += RB.GenerateResource();
+                        redResourcesLeft += RB.ResresourcesLeft;
                     }
                     else if (RB.FactionType == 1)
                     {
-                        radientResources += RB.GenerateResource();
-                        radientResourcesLeft += RB.ResresourcesLeft;
+                        blueResources += RB.GenerateResource();
+                        blueResourcesLeft += RB.ResresourcesLeft;
                     }
                 }
                 else
@@ -257,7 +276,7 @@ public class GameEngine : MonoBehaviour
                     FactoryBuilding FB = (FactoryBuilding)b;
                     Unit u = FB.SpawnUnit();
 
-                    if (FB.FactionType == 0 && direResources > FB.SpawnCost)
+                    if (FB.FactionType == 0 && redResources > FB.SpawnCost)
                     {
                         if (round % FB.SpawnSpeed == 0)
                         {
@@ -279,11 +298,11 @@ public class GameEngine : MonoBehaviour
                                 R.MapWidth = mapWidth;
                                 map.Units.Add(R);
                             }
-                            direResources -= FB.SpawnCost;
+                            redResources -= FB.SpawnCost;
 
                         }
                     }
-                    else if (FB.FactionType == 1 && radientResources > FB.SpawnCost)
+                    else if (FB.FactionType == 1 && blueResources > FB.SpawnCost)
                     {
                         if (round % FB.SpawnSpeed == 0)
                         {
@@ -300,7 +319,7 @@ public class GameEngine : MonoBehaviour
 
                                 map.Units.Add(R);
                             }
-                            radientResources -= FB.SpawnCost;
+                            blueResources -= FB.SpawnCost;
                         }
                     }
                 }
@@ -319,13 +338,13 @@ public class GameEngine : MonoBehaviour
             Display();
             runGame = false;
 
-            if (dire > radiant)
+            if (red > blue)
             {
-                txtWinText.text = "Dire Wins!";
+                txtWinText.text = "Red Wins!";
             }
             else
             {
-                txtWinText.text = "Radient Wins!";
+                txtWinText.text = "Blue Wins!";
             }
         }
     }
@@ -339,14 +358,22 @@ public class GameEngine : MonoBehaviour
                 map.Units.RemoveAt(i);
             }
         }
+
+        for(int k = 0; k < map.Buildings.Count; k++)
+        {
+            if(map.Buildings[k].Death() == true)
+            {
+                map.Buildings.RemoveAt(k);
+            }
+        }
     }
 
     //Displays the units onto the form
-    public void Display(/*Have gameMap or whatevs*/)
+    public void Display()
     {
-        for(int k = 0; k < 20; k++)
+        for(int k = 0; k < 15; k++)
         {
-            for (int l = 0; l < 20; l++)
+            for (int l = 0; l < 15; l++)
             {
                 Instantiate(floor, new Vector3(k, 0, l), Quaternion.identity);
             }

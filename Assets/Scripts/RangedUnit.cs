@@ -332,8 +332,6 @@ public class RangedUnit : Unit
             bDistance = (int)Mathf.Round(Mathf.Sqrt(xDis + yDis));
         }
 
-        if (units[0] != null)
-        {
             if (uDistance < bDistance)
             {
                 distance = uDistance;
@@ -344,12 +342,7 @@ public class RangedUnit : Unit
                 distance = bDistance;
                 enemyType = 1;
             }
-        }
-        else
-        {
-            distance = bDistance;
-            enemyType = 1;
-        }
+
 
         //Checks to see if they are below 25% health so they move rather than attacking
         if (Health > MaxHealth * 0.25)
