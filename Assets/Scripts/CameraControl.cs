@@ -11,7 +11,7 @@ public class CameraControl : MonoBehaviour
     void Update()
     {
         transform.position += transform.right * Input.GetAxis("Horizontal") * speed;
-        transform.position += transform.forward * Input.GetAxis("Vertical") * speed;
+        transform.position += transform.up * Input.GetAxis("Vertical") * speed;
 
         transform.Rotate(Vector3.up, Input.GetAxis("Rotation") * rotationSpeed, Space.World);
     }

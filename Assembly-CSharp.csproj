@@ -55,6 +55,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\Building.cs" />
      <Compile Include="Assets\Scripts\CameraControl.cs" />
+     <Compile Include="Assets\Scripts\CameraZoom.cs" />
      <Compile Include="Assets\Scripts\FactoryBuilding.cs" />
      <Compile Include="Assets\Scripts\GameEngine.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
