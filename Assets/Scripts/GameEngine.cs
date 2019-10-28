@@ -140,7 +140,7 @@ public class GameEngine : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        map = new Map(16, 6, 15, 15);
+        map = new Map(20, 6, 20, 20);
         map.Generate();
 
             foreach (Building B in map.buildings)
@@ -371,9 +371,9 @@ public class GameEngine : MonoBehaviour
     //Displays the units onto the form
     public void Display()
     {
-        for(int k = 0; k < 15; k++)
+        for(int k = 0; k < 20; k++)
         {
-            for (int l = 0; l < 15; l++)
+            for (int l = 0; l < 20; l++)
             {
                 Instantiate(floor, new Vector3(k, 0, l), Quaternion.identity);
             }

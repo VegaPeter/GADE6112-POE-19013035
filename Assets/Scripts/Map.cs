@@ -65,7 +65,7 @@ public class Map : MonoBehaviour
                                             Random.Range(0, width),
                                             Random.Range(0, height),
                                             (i % 2 == 0 ? 1 : 0),
-                                            10,
+                                            30,
                                             1,
                                             5,
                                             1,
@@ -79,7 +79,7 @@ public class Map : MonoBehaviour
                                             Random.Range(0, width),
                                             Random.Range(0, height),
                                             (i % 2 == 0 ? 1 : 0),
-                                            7,
+                                            20,
                                             1,
                                             3,
                                             2,
@@ -109,7 +109,7 @@ public class Map : MonoBehaviour
                                             Random.Range(0, width),
                                             Random.Range(0, height),
                                             3,
-                                            6,
+                                            15,
                                             1,
                                             5,
                                             1,
@@ -126,7 +126,7 @@ public class Map : MonoBehaviour
                                                            Random.Range(0, height),
                                                            20,
                                                            (k % 2 == 0 ? 1 : 0),
-                                                           3);
+                                                           10);
                 buildings.Add(rb);
             }
             else //Generate Unit Building
@@ -135,9 +135,9 @@ public class Map : MonoBehaviour
                                                          Random.Range(0, height),
                                                          20,
                                                          (k % 2 == 0 ? 1 : 0),
-                                                         10,
+                                                         3,
                                                          (Random.Range(0, 2) == 1 ? "Melee" : "Ranged"),
-                                                         100);
+                                                         35);
 
                 buildings.Add(fb);
             }
